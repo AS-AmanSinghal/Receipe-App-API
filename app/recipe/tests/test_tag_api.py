@@ -6,7 +6,7 @@ from recipe.serializer import TagSerializer
 from rest_framework import status
 from rest_framework.test import APIClient
 
-TAG_URL = reverse('receipe:tag-list')
+TAG_URL = reverse('recipe:tag-list')
 
 
 class PublicTagApiTest(TestCase):

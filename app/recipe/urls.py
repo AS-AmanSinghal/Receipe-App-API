@@ -5,8 +5,9 @@ from . import views
 
 ROUTERS = DefaultRouter()
 ROUTERS.register('tags', views.TagViewset)
+ROUTERS.register('ingredient', views.IngredientViewset)
 
-app_name = 'receipe'
+app_name = 'recipe'
 
 urlpatterns = [
     path('', include(ROUTERS.urls))
