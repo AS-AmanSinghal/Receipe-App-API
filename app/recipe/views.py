@@ -1,19 +1,16 @@
-from core.models import Tag
+from core.models import Tag, Ingredient
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from .serializer import TagSerializer
+from .serializer import TagSerializer, IngredientSerializer
 
 
 # Create your views here.
 
-class TagViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
-    """Manage tags in the database"""
+class BaseRecipe(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = TagSerializer
-    queryset = Tag.objects.all()
 
     def get_queryset(self):
         """Return objects for current authenticated user"""
@@ -22,3 +19,15 @@ class TagViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateMo
     def perform_create(self, serializer):
         """Create a new Tag"""
         serializer.save(user=self.request.user)
+
+
+class TagViewset(BaseRecipe):
+    """Manage tags in the database"""
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
+
+
+class IngredientViewset(BaseRecipe):
+    """Manage ingredient in the database"""
+    serializer_class = IngredientSerializer
+    queryset = Ingredient.objects.all()

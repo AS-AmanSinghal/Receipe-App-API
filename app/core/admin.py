@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import User,Tag
+from .models import User,Tag,Ingredient
 
 
 # Register your models here.
@@ -22,3 +22,4 @@ class UserAdmin(BaseAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Tag)
+admin.site.register(Ingredient)
