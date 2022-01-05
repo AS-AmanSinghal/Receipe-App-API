@@ -23,7 +23,7 @@ class PublicTagApiTest(TestCase):
 
 class PrivateTagApiTest(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user('test@gmail.com', 'test@123')
+        self.user = get_user_model().objects.create_user('test123@gmail.com', '@m@NN892310')
         self.client = APIClient()
         self.client.force_authenticate(self.user)
 
@@ -45,8 +45,22 @@ class PrivateTagApiTest(TestCase):
         user2 = get_user_model().objects.create_user('other@gmail.com', 'test@123')
         Tag.objects.create(user=user2, name='AMSNA')
         Tag.objects.create(user=user2, name='AMSNAasdas')
-        tag=Tag.objects.create(user=self.user, name='AMSNAasdaasdass')
+        tag = Tag.objects.create(user=self.user, name='AMSNAasdaasdass')
         response = self.client.get(TAG_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['name'], tag.name)
+
+    def test_create_tags_successful(self):
+        """Test creating a new tag"""
+        payload = {'name': "AMANS"}
+        response = self.client.post(TAG_URL, payload)
+        exists = Tag.objects.filter(user=self.user, name=payload['name']).exists()
+        self.assertTrue(exists)
+
+    def test_create_tag_invalid(self):
+        payload = {
+            'name': ""
+        }
+        response = self.client.post(TAG_URL, payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

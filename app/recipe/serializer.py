@@ -7,3 +7,4 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ('id', 'name', 'user')
         read_only_fields = ['id']
+        extra_kwargs = {'user': {'required': False}}
