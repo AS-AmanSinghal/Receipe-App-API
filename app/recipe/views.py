@@ -8,12 +8,9 @@ from .serializer import TagSerializer, IngredientSerializer
 
 # Create your views here.
 
-class TagViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
-    """Manage tags in the database"""
+class BaseRecipe(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = TagSerializer
-    queryset = Tag.objects.all()
 
     def get_queryset(self):
         """Return objects for current authenticated user"""
@@ -24,15 +21,13 @@ class TagViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateMo
         serializer.save(user=self.request.user)
 
 
-class IngredientViewset(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+class TagViewset(BaseRecipe):
+    """Manage tags in the database"""
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
+
+
+class IngredientViewset(BaseRecipe):
     """Manage ingredient in the database"""
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
-
-    def get_queryset(self):
-        return self.queryset.filter(user=self.request.user).order_by('-name')
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
