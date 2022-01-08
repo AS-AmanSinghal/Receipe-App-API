@@ -5,7 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .serializer import TagSerializer, IngredientSerializer, RecipeSerializer, RecipeDetailSerializer,RecipeImageSerializer
+from .serializer import TagSerializer, IngredientSerializer, RecipeSerializer, RecipeDetailSerializer, \
+    RecipeImageSerializer
 
 
 # Create your views here.
@@ -16,7 +17,13 @@ class BaseRecipe(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateMo
 
     def get_queryset(self):
         """Return objects for current authenticated user"""
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+        assigned_only = bool(
+            int(self.request.query_params.get('assigned_only',0))
+        )
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipe__isnull=False)
+        return queryset.filter(user=self.request.user).order_by('-name').distinct()
 
     def perform_create(self, serializer):
         """Create a new Tag"""
@@ -41,8 +48,21 @@ class RecipeViewset(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
 
+    def _params_to_int(self, query_string):
+        """Convert a list of string ids to a list of integer"""
+        return [int(str_id) for str_id in query_string.split(',')]
+
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+        tags = self.request.query_params.get('tags')
+        ingredients = self.request.query_params.get('ingredients')
+        queryset = self.queryset
+        if tags:
+            tag_ids = self._params_to_int(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+        if ingredients:
+            ingredient_ids = self._params_to_int(ingredients)
+            queryset = queryset.filter(ingredient__id__in=ingredient_ids)
+        return queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         """Return appropriate serializer class"""
